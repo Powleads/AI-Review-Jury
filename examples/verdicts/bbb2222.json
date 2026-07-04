@@ -1,0 +1,29 @@
+{
+  "sha": "bbb2222",
+  "findings": [
+    {
+      "summary": "Pagination cursor never advances, so page 2 re-returns page 1",
+      "location": "src/api/list.ts:88",
+      "found_by": ["minimax"],
+      "verdict": "REAL",
+      "severity": "P2",
+      "evidence": "the query uses `.take(limit)` without ordering by the cursor field before taking, so the same rows come back each call; the cursor is computed but never applied to the filter."
+    },
+    {
+      "summary": "Suggests renaming the variable for clarity",
+      "location": "src/api/list.ts:80",
+      "found_by": ["glm"],
+      "verdict": "STYLE",
+      "severity": "P3",
+      "evidence": "naming preference; no behavioral impact."
+    },
+    {
+      "summary": "Claims a null-deref on the response object",
+      "location": "src/api/list.ts:95",
+      "found_by": ["deepseek"],
+      "verdict": "FALSE_POSITIVE",
+      "severity": "P1",
+      "evidence": "the object is constructed two lines above and cannot be null on this path; the model misread the scope."
+    }
+  ]
+}

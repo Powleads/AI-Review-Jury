@@ -1,0 +1,29 @@
+{
+  "sha": "aaa1111",
+  "findings": [
+    {
+      "summary": "Secret compared with == instead of constant-time equality (timing side-channel)",
+      "location": "src/auth/token.ts:42",
+      "found_by": ["glm", "minimax"],
+      "verdict": "REAL",
+      "severity": "P2",
+      "evidence": "provided === expected short-circuits on the first differing byte; response time leaks how many leading bytes matched, enabling byte-at-a-time recovery over many requests."
+    },
+    {
+      "summary": "Off-by-one lets an expired token pass for one extra second",
+      "location": "src/auth/token.ts:55",
+      "found_by": ["glm"],
+      "verdict": "REAL",
+      "severity": "P3",
+      "evidence": "uses `now <= exp` where the spec is `now < exp`; a token is accepted on the exact expiry second."
+    },
+    {
+      "summary": "Claims the regex is catastrophically backtracking",
+      "location": "src/auth/token.ts:12",
+      "found_by": ["minimax"],
+      "verdict": "FALSE_POSITIVE",
+      "severity": "P2",
+      "evidence": "the pattern has no nested quantifier over an overlapping class; input length is capped at 64 upstream. No ReDoS."
+    }
+  ]
+}
