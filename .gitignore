@@ -1,4 +1,4 @@
 # benchmark output (your own runs)
-diff-jury-bench/
+ai-review-jury-bench/
 *.tmp
 .DS_Store

@@ -30,7 +30,7 @@ Two things that a leaderboard would never have told me:
 ## Setup
 
 ```bash
-git clone <this-repo> && cd diff-jury
+git clone <this-repo> && cd AI-Review-Jury
 chmod +x review.sh panel.sh bench/collect.sh
 export OPENROUTER_API_KEY=sk-or-...        # from openrouter.ai/keys
 ```
@@ -43,13 +43,13 @@ Run from inside the repo you're reviewing:
 
 ```bash
 # one model on your branch's diff vs origin/main
-/path/to/diff-jury/review.sh
+/path/to/AI-Review-Jury/review.sh
 
 # the full panel on a specific commit
-/path/to/diff-jury/panel.sh --commit 1a2b3c4
+/path/to/AI-Review-Jury/panel.sh --commit 1a2b3c4
 
 # panel on uncommitted work, with a focus note
-/path/to/diff-jury/panel.sh --uncommitted "focus on the auth and payment changes"
+/path/to/AI-Review-Jury/panel.sh --uncommitted "focus on the auth and payment changes"
 ```
 
 Pick your own panel — distinct **lineages** matter more than count (Anthropic + OpenAI + Zhipu + MiniMax beats four models from one lab):
@@ -65,13 +65,13 @@ Don't take my table's word for it — your codebase is different. Run it on your
 ```bash
 cd /your/repo
 OPENROUTER_API_KEY=... MODELS="z-ai/glm-5.2,minimax/minimax-m3,deepseek/deepseek-v4-flash" \
-  /path/to/diff-jury/bench/collect.sh 10          # 3 models × 10 recent commits
+  /path/to/AI-Review-Jury/bench/collect.sh 10          # 3 models × 10 recent commits
 ```
 
-That writes one raw review per (commit, model) to `./diff-jury-bench/reviews/`. Now the part that makes it a *benchmark* and not a vibe: **triage every finding against the real code** and write one verdict JSON per commit (see [`bench/judge-brief.md`](bench/judge-brief.md) — you can do this by hand, or hand each commit to a strong judge model). Then:
+That writes one raw review per (commit, model) to `./ai-review-jury-bench/reviews/`. Now the part that makes it a *benchmark* and not a vibe: **triage every finding against the real code** and write one verdict JSON per commit (see [`bench/judge-brief.md`](bench/judge-brief.md) — you can do this by hand, or hand each commit to a strong judge model). Then:
 
 ```bash
-python3 /path/to/diff-jury/bench/aggregate.py ./diff-jury-bench/verdicts
+python3 /path/to/AI-Review-Jury/bench/aggregate.py ./ai-review-jury-bench/verdicts
 ```
 
 → the precision/recall/unique-REAL scorecard above, for **your** code. Keep the models that pull their weight; drop the ones that just fill your inbox.
@@ -84,7 +84,7 @@ python3 /path/to/diff-jury/bench/aggregate.py ./diff-jury-bench/verdicts
 
 ## The bigger lever
 
-The highest-leverage upgrade isn't a fourth model — it's making every finding **prove itself**: require a claimed bug to ship a failing test/repro before you act on it. That converts an N-model vote into hard signal and kills the false-positive triage tax. `diff-jury` is the cheap first step (diverse eyes); execution-grounded verification is the next one.
+The highest-leverage upgrade isn't a fourth model — it's making every finding **prove itself**: require a claimed bug to ship a failing test/repro before you act on it. That converts an N-model vote into hard signal and kills the false-positive triage tax. `AI Review Jury` is the cheap first step (diverse eyes); execution-grounded verification is the next one.
 
 ## License
 

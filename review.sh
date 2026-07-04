@@ -71,7 +71,7 @@ print(json.dumps({
 
 curl -s -m 180 https://openrouter.ai/api/v1/chat/completions \
   -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
-  -H "X-Title: diff-jury" \
+  -H "X-Title: AI Review Jury" \
   -d "$REQ" | python3 -c '
 import json,sys
 raw = sys.stdin.read()

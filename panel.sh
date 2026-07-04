@@ -24,7 +24,7 @@ MODELS="${MODELS:-z-ai/glm-5.2,minimax/minimax-m3,anthropic/claude-sonnet-4.5}"
 [ -n "${OPENROUTER_API_KEY:-}" ] || { echo "✗ OPENROUTER_API_KEY not set" >&2; exit 1; }
 
 IFS=',' read -ra LIST <<< "$MODELS"
-echo "◆ diff-jury: ${#LIST[@]} models reviewing in parallel — ${MODELS}" >&2
+echo "◆ AI Review Jury: ${#LIST[@]} models reviewing in parallel — ${MODELS}" >&2
 TMP=$(mktemp -d)
 pids=()
 for m in "${LIST[@]}"; do
