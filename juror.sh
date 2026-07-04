@@ -17,6 +17,8 @@
 #   MODEL                OpenRouter model slug (default: z-ai/glm-5.2 — it won the
 #                        benchmark in ./bench; verify slugs at openrouter.ai/models)
 #   MAX_DIFF_CHARS       truncate very large diffs (default 120000)
+#   REVIEW_TIMEOUT       per-model seconds (default 280 — high enough for slow
+#                        reasoning models like deepseek-v4-pro on a large diff)
 set -euo pipefail
 
 # --help must work without a key or a repo.
@@ -69,7 +71,7 @@ print(json.dumps({
   "temperature": 0,
 }))' "$PROMPT" "$DIFF" "$MODEL" "$MAX")
 
-curl -s -m 180 https://openrouter.ai/api/v1/chat/completions \
+curl -s -m "${REVIEW_TIMEOUT:-280}" https://openrouter.ai/api/v1/chat/completions \
   -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
   -H "X-Title: AI Review Jury" \
   -d "$REQ" | python3 -c '

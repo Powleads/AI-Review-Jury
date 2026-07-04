@@ -14,13 +14,17 @@
 #
 # Env:
 #   OPENROUTER_API_KEY   required
-#   MODELS               comma-separated OpenRouter slugs (default: a diverse trio).
-#                        Put your own picks here after benchmarking. Distinct
-#                        LINEAGES matter more than count — Anthropic + OpenAI +
-#                        Zhipu + MiniMax beats four models from one lab.
+#   MODELS               comma-separated OpenRouter slugs. Default is tuned for running
+#                        this INSIDE Claude Code (as the /jury skill): your session is
+#                        already a Claude reviewer, so the panel adds three NON-Claude
+#                        lineages — Zhipu (GLM), MiniMax, DeepSeek — for maximum
+#                        non-overlapping blind spots. deepseek-v4-pro is a strong
+#                        *reasoning* model: better depth, but slow (can take minutes on
+#                        a big diff) — swap it for a faster pick if you don't run in Claude.
+#                        Distinct LINEAGES matter more than count; benchmark with ./bench.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
-MODELS="${MODELS:-z-ai/glm-5.2,minimax/minimax-m3,anthropic/claude-sonnet-4.5}"
+MODELS="${MODELS:-z-ai/glm-5.2,minimax/minimax-m3,deepseek/deepseek-v4-pro}"
 [ -n "${OPENROUTER_API_KEY:-}" ] || { echo "✗ OPENROUTER_API_KEY not set" >&2; exit 1; }
 
 IFS=',' read -ra LIST <<< "$MODELS"

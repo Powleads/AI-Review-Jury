@@ -27,6 +27,8 @@ Two things that a leaderboard would never have told me:
 
 `unique-REAL` is the number that matters: real bugs **only** that model caught. That's what a model actually adds to a panel you already have. `false positives` is what it charges you in triage time. Add a model when the first column beats the second.
 
+> **Default panel.** `jury.sh` defaults to `glm-5.2 + minimax-m3 + deepseek-v4-pro` — tuned for running *inside* Claude Code: your session is already a Claude reviewer, so the panel spends its slots on non-Claude lineages (Zhipu, MiniMax, DeepSeek) for maximum non-overlapping coverage. Note that's deepseek-v4-**pro** (the strong *reasoning* variant), **not** the `deepseek-v4-flash` that flunked the table above — a different model. Pro trades speed for depth (minutes on a big diff); `MODELS=` swaps it for a faster pick if you're not running in Claude.
+
 ## Setup
 
 ```bash
@@ -58,20 +60,28 @@ Pick your own panel — distinct **lineages** matter more than count (Anthropic 
 MODELS="anthropic/claude-sonnet-4.5,openai/gpt-5.1,z-ai/glm-5.2" jury.sh --commit HEAD
 ```
 
-## Use it as a Claude Code slash command
+## Use it in Claude Code (skill or slash command)
 
-Turn the jury into a `/jury` command you invoke like any other review. Copy the ready-made
-command into your Claude Code commands dir and point it at your clone:
+Make the jury part of your review workflow — Claude runs the panel and **triages** each finding
+(confirm or refute it against the actual code) instead of dumping raw model output. Two ways to
+install; pick one:
 
+**As a skill** (auto-discovered, model decides when to invoke it):
+```bash
+cp -r skills/ai-review-jury ~/.claude/skills/
+# then: set OPENROUTER_API_KEY in your env, and edit the jury.sh path inside SKILL.md
+```
+
+**As a `/jury` slash command** (you invoke it explicitly):
 ```bash
 mkdir -p ~/.claude/commands
 cp commands/jury.md ~/.claude/commands/jury.md
-# then: edit the jury.sh path inside it, and set OPENROUTER_API_KEY in your env
+# then: set OPENROUTER_API_KEY in your env, and edit the jury.sh path inside it
 ```
 
-Then in any repo: `/jury`, `/jury --commit HEAD`, or `/jury focus on the auth changes`. Claude
-runs the panel and **triages** each finding — confirm or refute it against the actual code —
-instead of dumping raw model output. A claim is a lead, not a verdict. The command file:
+Either way: in any repo, run it on your changes (`/jury`, `/jury --commit HEAD`, or
+`/jury focus on the auth changes`). A claim is a lead, not a verdict. Files:
+[`skills/ai-review-jury/SKILL.md`](skills/ai-review-jury/SKILL.md) ·
 [`commands/jury.md`](commands/jury.md).
 
 ## Benchmark: which models earn a seat?
