@@ -16,12 +16,12 @@
 # Env:
 #   MODELS       comma-separated slugs to benchmark (default: the diverse trio + a
 #                deliberately-weak one so you can SEE the difference)
-#   OUT          output dir (default ./diff-jury-bench)
+#   OUT          output dir (default ./ai-review-jury-bench)
 #   CONCURRENCY  parallel reviews (default 6)
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 MODELS="${MODELS:-z-ai/glm-5.2,minimax/minimax-m3,deepseek/deepseek-v4-flash}"
-OUT="${OUT:-./diff-jury-bench}"
+OUT="${OUT:-./ai-review-jury-bench}"
 CONCURRENCY="${CONCURRENCY:-6}"
 [ -n "${OPENROUTER_API_KEY:-}" ] || { echo "✗ OPENROUTER_API_KEY not set" >&2; exit 1; }
 git rev-parse --is-inside-work-tree >/dev/null 2>&1 || { echo "✗ run inside the repo you want to benchmark" >&2; exit 1; }

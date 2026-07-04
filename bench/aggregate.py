@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """aggregate.py — turn per-commit verdicts into a per-model scorecard.
 
-Usage:  python3 bench/aggregate.py [verdicts_dir]   (default ./diff-jury-bench/verdicts)
+Usage:  python3 bench/aggregate.py [verdicts_dir]   (default ./ai-review-jury-bench/verdicts)
 
 Reads every <sha>.json written per the judge brief and reports, for each model:
   raised        findings it made (excluding pure STYLE)
@@ -16,7 +16,7 @@ Model names are discovered from the `found_by` fields — no hard-coding.
 import json, glob, os, sys
 from collections import defaultdict
 
-VDIR = sys.argv[1] if len(sys.argv) > 1 else "./diff-jury-bench/verdicts"
+VDIR = sys.argv[1] if len(sys.argv) > 1 else "./ai-review-jury-bench/verdicts"
 files = sorted(glob.glob(os.path.join(VDIR, "*.json")))
 if not files:
     sys.exit(f"no verdict JSON found in {VDIR} (see bench/judge-brief.md)")
@@ -53,7 +53,7 @@ for path in files:
                 stat[m]["uncertain"] += 1
 
 models = sorted(models, key=lambda m: (-stat[m]["real"], -stat[m]["unique"]))
-print(f"=== diff-jury benchmark — {len(files)} commits, {panel_real} distinct REAL bugs found by the panel ===\n")
+print(f"=== AI Review Jury benchmark — {len(files)} commits, {panel_real} distinct REAL bugs found by the panel ===\n")
 hdr = f"{'model':<28} {'raised':>6} {'REAL':>5} {'uniqREAL':>8} {'FP':>4} {'prec':>5} {'recall':>6}"
 print(hdr); print("-" * len(hdr))
 for m in models:
