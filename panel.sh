@@ -79,11 +79,22 @@ except Exception:
 print(txt if txt else "(empty response)")'
 }
 
+# OpenRouter drops ~4% of calls (truncated/non-JSON); one retry recovered 7/7 failures
+# in the 2026-07-05 benchmark, so retry once before reporting an error.
+run_with_retry() {
+  local m="$1" out="$2"
+  run_one "$m" > "$out" 2>&1 || true
+  if [ ! -s "$out" ] || grep -q '^✗' "$out"; then
+    echo "◆ retrying $m (bad response)" >&2
+    run_one "$m" > "$out" 2>&1 || true
+  fi
+}
+
 IFS=',' read -ra LIST <<< "$MODELS"
 echo "◆ AI Panel [$PRESET]: ${#LIST[@]} models critiquing in parallel — ${MODELS}" >&2
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 for m in "${LIST[@]}"; do
-  ( run_one "$m" > "$TMP/${m//\//_}.txt" 2>&1 || true ) &
+  ( run_with_retry "$m" "$TMP/${m//\//_}.txt" ) &
 done
 wait
 for m in "${LIST[@]}"; do
