@@ -59,7 +59,7 @@ CONF=""
 MODELS="${MODELS:-${CONF:-$PANEL_DEFAULT}}"
 
 run_one() {
-  local model="$1"
+  local model="$1" prompt_override="${2:-$PROMPT}"
   local req
   req=$(python3 -c '
 import json,sys
@@ -68,7 +68,7 @@ print(json.dumps({
   "model": model,
   "messages": [{"role": "user", "content": prompt + "\n\n---\n\n" + content[:mx]}],
   "temperature": 0,
-}))' "$PROMPT" "$CONTENT" "$model" "${MAX_CHARS:-60000}")
+}))' "$prompt_override" "$CONTENT" "$model" "${MAX_CHARS:-60000}")
   curl -s -m "${PANEL_TIMEOUT:-240}" https://openrouter.ai/api/v1/chat/completions \
     -H "Authorization: Bearer $OPENROUTER_API_KEY" -H "Content-Type: application/json" \
     -H "X-Title: AI Review Panel" \
@@ -91,11 +91,11 @@ print(txt if txt else "(empty response)")'
 # OpenRouter drops ~4% of calls (truncated/non-JSON); one retry recovered 7/7 failures
 # in the 2026-07-05 benchmark, so retry once before reporting an error.
 run_with_retry() {
-  local m="$1" out="$2"
-  run_one "$m" > "$out" 2>&1 || true
+  local m="$1" out="$2" prompt_override="${3:-$PROMPT}"
+  run_one "$m" "$prompt_override" > "$out" 2>&1 || true
   if [ ! -s "$out" ] || grep -q '^✗' "$out"; then
     echo "◆ retrying $m (bad response)" >&2
-    run_one "$m" > "$out" 2>&1 || true
+    run_one "$m" "$prompt_override" > "$out" 2>&1 || true
   fi
 }
 
@@ -112,5 +112,33 @@ for m in "${LIST[@]}"; do
   echo "════════════════════════════════════════════════════════════════"
   cat "$TMP/${m//\//_}.txt" 2>/dev/null || echo "(no output)"
 done
+
+# COUNCIL=1 — anonymized cross-examination round (llm-council Stage 2, adopted 2026-07-07).
+# Each panelist reviews the OTHERS' findings blind (Reviewer A/B/…) and must CONFIRM or
+# REFUTE each with concrete evidence. Kills false positives before the human triage and
+# surfaces which disagreements deserve the hardest look. Doubles cost (still pennies).
+if [ "${COUNCIL:-0}" = "1" ] && [ "${#LIST[@]}" -ge 2 ]; then
+  echo "◆ Council round: anonymized cross-examination" >&2
+  for m in "${LIST[@]}"; do
+    others=""; letter=A
+    for o in "${LIST[@]}"; do
+      [ "$o" = "$m" ] && continue
+      others="${others}───── Reviewer ${letter} (identity hidden) ─────
+$(cat "$TMP/${o//\//_}.txt" 2>/dev/null)
+
+"
+      letter=$(printf '%s' "$letter" | tr 'A-Y' 'B-Z')
+    done
+    CROSS="You are cross-examining another reviewer's findings on the SAME document you just reviewed (the document follows after the findings). For EACH of their findings, output one line: CONFIRM — <the corroborating evidence> or REFUTE — <the concrete counter-evidence>. Do not be polite; a wrong CONFIRM wastes the maintainer's time. Finish with two lines: (1) their single most important finding, (2) anything real they caught that you missed.
+
+${others}The original document for reference:"
+    ( run_with_retry "$m" "$TMP/${m//\//_}.cross.txt" "$CROSS" ) &
+  done
+  wait
+  for m in "${LIST[@]}"; do
+    echo; echo "──────────── cross-examination by $m ────────────"
+    cat "$TMP/${m//\//_}.cross.txt" 2>/dev/null || echo "(no output)"
+  done
+fi
 echo
 echo "◆ Panel done. Triage each finding — a claim is a lead, not a verdict." >&2

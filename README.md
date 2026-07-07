@@ -120,6 +120,11 @@ well-known model fabricated citations. Re-run it on your own fixtures: `panel-be
 → judge with `panel-bench/judge-brief.md` → `panel-bench/aggregate.py` → edit `panels.conf`.
 Same contract as the jury: critics, never executors — findings are leads you triage.
 
+**`COUNCIL=1`** adds an anonymized cross-examination round (borrowed from Karpathy's
+[llm-council](https://github.com/karpathy/llm-council) Stage 2): each panelist must CONFIRM or
+REFUTE every finding the others made, with evidence, before your triage. Kills false positives
+early and makes panelists admit what they missed. Doubles the (tiny) cost.
+
 ## Agentic mode: `agentic-juror.sh` — Codex-style review from a non-OpenAI lineage
 
 A diff-only jury can't read the caller in another file. `agentic-juror.sh` gives a foreign
