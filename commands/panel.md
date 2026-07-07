@@ -27,7 +27,7 @@ session's reasoning and can't sycophantically agree with the user).
    ```
 
    - Presets carry a tuned prompt AND a per-preset panel from `panels.conf` (benchmark
-     your own seats with `panel-bench/`). Override with `MODELS="slug,slug"`.
+     your own seats with `panel-bench/`). Prefer `COUNCIL=1` for high-stakes inputs — anonymized cross-examination round, each panelist CONFIRMs/REFUTEs the others before your triage. Override with `MODELS="slug,slug"`.
    - `design` critiques TEXT specs only — rendered UI needs a screenshot-based review.
    - Code diffs → use `/jury` (jury.sh), not this.
 
